@@ -1,25 +1,30 @@
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import json
+import os
 
 app = FastAPI()
 
-# Load model and tokenizer
-model_path = "trained_chatbot_model"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForSequenceClassification.from_pretrained(model_path)
+# Step 1: Define local model directory
+model_dir = "trained_chatbot_model"  # Ensure this folder exists locally with all necessary files
 
-# Load label map
-with open(f"{model_path}/label_map.json", "r") as f:
+# Step 2: Load model and tokenizer
+tokenizer = AutoTokenizer.from_pretrained(model_dir)
+model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+
+# Step 3: Load label map
+with open(f"{model_dir}/label_map.json", "r") as f:
     label_map = json.load(f)
 reverse_label_map = {v: k for k, v in label_map.items()}
 
+# Step 4: Define input schema
 class Query(BaseModel):
     question: str
 
+# Step 5: Define prediction endpoint
 @app.post("/predict")
 def predict(query: Query):
     inputs = tokenizer(query.question, return_tensors="pt", truncation=True, padding=True)
