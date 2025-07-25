@@ -8,6 +8,12 @@ import os
 
 app = FastAPI()
 
+
+@app.get("/")
+def read_root():
+    return {"message": "Chatbot API is running!"}
+
+
 # Step 1: Define local model directory
 model_dir = "trained_chatbot_model"  # Ensure this folder exists locally with all necessary files
 
